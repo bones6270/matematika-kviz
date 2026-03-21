@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. Osztályos Matematika Kvíz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #5568d3;
+        }
+
+        .btn-next:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-restart {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-restart:hover {
+            background: #e68900;
+        }
+
+        .progress {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .score-text {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Matematika Kvíz</h1>
+        <p class="subtitle">3. osztályos feladatok</p>
+
+        <div id="quizContainer">
+            <div class="progress">
+                <span id="questionCount">1</span> / <span id="totalQuestions">10</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-number" id="questionNumber">1. kérdés</div>
+                <div class="question" id="question">?</div>
+                <div class="options" id="options"></div>
+            </div>
+
+            <div class="button-container">
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Következő →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <div class="emoji" id="emoji">🎉</div>
+            <div class="score-circle">
+                <span id="finalScore">0</span>/<span id="totalScore">10</span>
+            </div>
+            <div class="score-text">Gratulálok!</div>
+            <div class="message" id="message">Jó munkát végez!</div>
+            <div class="button-container">
+                <button class="btn-restart" onclick="restartQuiz()">Újra játszani 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "5 + 7 = ?",
+                options: [10, 12, 13, 11],
+                correct: 1
+            },
+            {
+                question: "15 - 8 = ?",
+                options: [6, 8, 7, 9],
+                correct: 2
+            },
+            {
+                question: "6 × 4 = ?",
+                options: [20, 22, 24, 26],
+                correct: 2
+            },
+            {
+                question: "20 ÷ 5 = ?",
+                options: [3, 4, 5, 6],
+                correct: 1
+            },
+            {
+                question: "12 + 18 = ?",
+                options: [28, 30, 32, 29],
+                correct: 1
+            },
+            {
+                question: "45 - 17 = ?",
+                options: [26, 28, 30, 27],
+                correct: 0
+            },
+            {
+                question: "7 × 8 = ?",
+                options: [54, 56, 58, 60],
+                correct: 1
+            },
+            {
+                question: "36 ÷ 6 = ?",
+                options: [5, 6, 7, 8],
+                correct: 1
+            },
+            {
+                question: "25 + 14 = ?",
+                options: [38, 39, 40, 41],
+                correct: 1
+            },
+            {
+                question: "100 - 37 = ?",
+                options: [61, 62, 63, 64],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('questionNumber').textContent = (currentQuestion + 1) + '. kérdés';
+            document.getElementById('questionCount').textContent = currentQuestion + 1;
+            document.getElementById('totalQuestions').textContent = questions.length;
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionDiv.id = 'option-' + index;
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            updateProgressBar();
+            selectedAnswer = null;
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        function selectAnswer(index) {
+            const question = questions[currentQuestion];
+            selectedAnswer = index;
+
+            // Töröljük az előző kijelöléseket
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Jelöljük az új választást
+            document.getElementById('option-' + index).classList.add('selected');
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            const question = questions[currentQuestion];
+
+            if (selectedAnswer === null) return;
+
+            // Megjelenítjük az eredményt
+            if (selectedAnswer === question.correct) {
+                document.getElementById('option-' + selectedAnswer).classList.remove('selected');
+                document.getElementById('option-' + selectedAnswer).classList.add('correct');
+                score++;
+            } else {
+                document.getElementById('option-' + selectedAnswer).classList.remove('selected');
+                document.getElementById('option-' + selectedAnswer).classList.add('incorrect');
+                document.getElementById('option-' + question.correct).classList.add('correct');
+            }
+
+            document.getElementById('nextBtn').disabled = true;
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalScore').textContent = questions.length;
+
+            let message = '';
+            let emoji = '';
+
+            if (score === questions.length) {
+                message = '🌟 Tökéletes! Minden kérdésre helyesen válaszoltál!';
+                emoji = '⭐';
+            } else if (score >= 8) {
+                message = '😊 Kiváló teljesítmény!';
+                emoji = '👏';
+            } else if (score >= 6) {
+                message = '😌 Jó munkát végez!';
+                emoji = '👍';
+            } else if (score >= 4) {
+                message = '📚 Gyakorolj még egy kicsit!';
+                emoji = '💪';
+            } else {
+                message = '🎯 Tanulj tovább, biztosan sikerülni fog!';
+                emoji = '📖';
+            }
+
+            document.getElementById('message').textContent = message;
+            document.getElementById('emoji').textContent = emoji;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('resultScreen').classList.remove('show');
+            loadQuestion();
+        }
+
+        // Kezdjük az alkalmazást
+        loadQuestion();
+    </script>
+</body>
+</html>
